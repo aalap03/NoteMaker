@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#614126</color> action bar color
+    <color name="colorPrimaryDark">#754c29</color> statusbar color
+    <color name="colorAccent">#fff</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#272727</color>
+    <color name="fadedWhite">#E1E1E1</color>
+    <color name="date_color">#99C68E</color>
+    <color name ="update_color">#754c29</color>
+    <color name="save_color">#348017</color>
+
+</resources>

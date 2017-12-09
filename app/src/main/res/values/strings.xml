@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Note Maker</string>
+    <string name="audio_dialog_title">Can not record audio!!!</string>
+    <string name="audio_dialog_message">Please allow permission to record audio</string>
+    <string name="media_dialog_title">Can not save recorded media</string>
+    <string name="media_dialog_message">Please allow permission to save recorded media</string>
+
+    <string-array name="time_array">
+        <item>Minutes</item>
+        <item>Hours</item>
+        <item>Days</item>
+    </string-array>
+</resources>
