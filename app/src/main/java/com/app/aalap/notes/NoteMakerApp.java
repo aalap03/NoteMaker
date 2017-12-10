@@ -20,9 +20,7 @@ public class NoteMakerApp extends Application {
         Realm.init(getApplicationContext());
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .name("REMINDERS")
-                .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(config);
-
-        }
+    }
 }

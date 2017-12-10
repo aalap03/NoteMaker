@@ -15,28 +15,18 @@ public class Reminder extends RealmObject {
     String details;
     Date endTime;
     Date reminderTime;
-    String timeDifferenceText;
 
     @PrimaryKey
     long id;
 
     public Reminder(){}
 
-    public Reminder(String title, String details, Date endTime, Date reminderTime, long id, String timeDifferenceText) {
+    public Reminder(String title, String details, Date endTime, Date reminderTime, long id) {
         this.title = title;
         this.details = details;
         this.endTime = endTime;
         this.reminderTime = reminderTime;
         this.id = id;
-        this.timeDifferenceText = timeDifferenceText;
-    }
-
-    public String getTimeDifferenceText() {
-        return timeDifferenceText;
-    }
-
-    public void setTimeDifferenceText(String timeDifferenceText) {
-        this.timeDifferenceText = timeDifferenceText;
     }
 
     public String getTitle() {

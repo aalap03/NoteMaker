@@ -11,17 +11,21 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+
 import com.app.aalap.notes.Fragments.ReminderListFragment;
 import com.app.aalap.notes.R;
 import com.app.aalap.notes.Utils.Reminder;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
 import es.dmoral.toasty.Toasty;
 import io.realm.Realm;
+
 import static com.app.aalap.notes.Utils.AppUtils.cancelAlarm;
 import static com.app.aalap.notes.Utils.AppUtils.setUpAlarm;
 
@@ -39,6 +43,9 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
     String titleS;
     boolean isUpdating;
     long id = 0;
+    public static final String SPINNER_MINUTES = "Minutes";
+    public static final String SPINNER_DAYS = "Days";
+    public static final String SPINNER_HOURS = "Hours";
 
     long ONEDAY_MILIS = (1440 * 60 * 1000);
     long ONEHOUR_MILIS = (60 * 60 * 1000);
@@ -52,7 +59,7 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
 
         Bundle extras = intent.getExtras();
 
-        if(extras!=null){
+        if (extras != null) {
             id = extras.getLong("id");
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
@@ -81,10 +88,10 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
 
         spinner = findViewById(R.id.spinner);
         Calendar calendar = Calendar.getInstance();
-        dateButton.setText(calendar.get(Calendar.YEAR) + ":"+getDoubleDigit(calendar.get(Calendar.MONTH)+1)
-                +":" + getDoubleDigit(calendar.get(Calendar.DAY_OF_MONTH)));
+        dateButton.setText(calendar.get(Calendar.YEAR) + ":" + getDoubleDigit(calendar.get(Calendar.MONTH) + 1)
+                + ":" + getDoubleDigit(calendar.get(Calendar.DAY_OF_MONTH)));
         timeButton.setText(getDoubleDigit(calendar.get(Calendar.HOUR_OF_DAY)) +
-                ":"+getDoubleDigit(calendar.get(Calendar.MINUTE)));
+                ":" + getDoubleDigit(calendar.get(Calendar.MINUTE)));
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.time_array, android.R.layout.simple_spinner_item);
@@ -115,26 +122,27 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
         reminderDetails.setText(reminder.getDetails());
         Calendar c = Calendar.getInstance();
         c.setTime(reminder.getEndTime());
-        Log.d(TAG, "setReminderData: end "+ reminder.getEndTime());
-        Log.d(TAG, "setReminderData: reminder "+ reminder.getReminderTime());
-        dateButton.setText(c.get(Calendar.YEAR) + ":" + getDoubleDigit(c.get(Calendar.MONTH)+1) + ":" + getDoubleDigit(c.get(Calendar.DAY_OF_MONTH)));
+        dateButton.setText(c.get(Calendar.YEAR) + ":" + getDoubleDigit(c.get(Calendar.MONTH) + 1) + ":" + getDoubleDigit(c.get(Calendar.DAY_OF_MONTH)));
         timeButton.setText(getDoubleDigit(c.get(Calendar.HOUR_OF_DAY)) + ":" + getDoubleDigit(c.get(Calendar.MINUTE)));
 
-        long difference = reminder.getEndTime().getTime() - reminder.getReminderTime().getTime();
-        Log.d(TAG, "setReminderData: "+difference%TENMINS_MILIS);
-        Log.d(TAG, "setReminderData: "+difference%ONEDAY_MILIS);
-        Log.d(TAG, "setReminderData: "+difference%ONEHOUR_MILIS);
-        if(difference == TENMINS_MILIS)
+        long difference = (reminder.getEndTime().getTime() - reminder.getReminderTime().getTime());
+
+        if (difference / TENMINS_MILIS < 60) {
             spinner.setSelection(0);
-        else if(difference == ONEHOUR_MILIS)
+            reminderTime.setText((difference / TENMINS_MILIS) + "");
+        } else if (difference / ONEHOUR_MILIS < 24) {
             spinner.setSelection(1);
-        else
+            reminderTime.setText((difference / ONEHOUR_MILIS) + "");
+        } else {
             spinner.setSelection(2);
+            reminderTime.setText((difference / ONEDAY_MILIS) + "");
+        }
+
 
     }
 
-    String getDoubleDigit(int num){
-        return num<10 ?"0"+num:num+"";
+    String getDoubleDigit(int num) {
+        return num < 10 ? "0" + num : num + "";
     }
 
     void setDatePickers() {
@@ -198,7 +206,7 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
             Date reminderTimeVal = getReminderTime();
             Date enteredDate = getEnteredDate();
 
-            if(reminderTimeVal!=null){
+            if (reminderTimeVal != null) {
 
                 if (isUpdating) {
                     Reminder first = realm.where(Reminder.class).equalTo("id", id).findFirst();
@@ -207,17 +215,15 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
                     first.setEndTime(enteredDate);
                     first.setReminderTime(reminderTimeVal);
 
-                    String reminderTimeText = reminderTime.getText().toString()+" " + spinner.getSelectedItem().toString();
-                    Log.d(TAG, "addReminder: "+reminderTimeText);
 
                     cancelAlarm(this, (int) first.getId());
                     setUpAlarm(this, reminderTimeVal.getTime(), (int) first.getId());
                 } else {
-                    String reminderTimeText = reminderTime.getText().toString()+" " + spinner.getSelectedItem().toString();
-                    Log.d(TAG, "addReminder: "+reminderTimeText);
+                    String reminderTimeText = reminderTime.getText().toString() + " " + spinner.getSelectedItem().toString();
+                    Log.d(TAG, "addReminder: " + reminderTimeText);
 
                     Reminder reminder = new Reminder
-                            (titleS, reminderDetails.getText().toString(), enteredDate, reminderTimeVal, System.currentTimeMillis(), "aalap");
+                            (titleS, reminderDetails.getText().toString(), enteredDate, reminderTimeVal, System.currentTimeMillis());
                     realm.copyToRealm(reminder);
                     setUpAlarm(this, reminderTimeVal.getTime(), (int) enteredDate.getTime());
                 }
@@ -239,7 +245,7 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
         String reminderText = spinner.getSelectedItem().toString();
         long endTime = 0;
 
-        try{
+        try {
             int timeDigit = Integer.parseInt(reminderTime.getText().toString());
             switch (reminderText) {
 
@@ -255,7 +261,7 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
 
             }
             return new Date(endTime);
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             return null;
         }
@@ -277,14 +283,28 @@ public class NewReminderActivity extends AppCompatActivity implements View.OnCli
             Toasty.error(this, "Please add date").show();
         }
 
-        if (getReminderTime()!=null && (getEnteredDate().getTime() < System.currentTimeMillis() || getReminderTime().getTime() < System.currentTimeMillis())) {
+        if (getReminderTime() != null && (getEnteredDate().getTime() < System.currentTimeMillis() || getReminderTime().getTime() < System.currentTimeMillis())) {
             isValidated = false;
             Toasty.error(this, "Invalid date").show();
         }
 
-        if(timeDigit.isEmpty()){
+        if (timeDigit.isEmpty()) {
             isValidated = false;
             Toasty.error(this, "Enter valid time digit").show();
+        }
+
+        if (!timeDigit.isEmpty()) {
+
+            String spinnerValue = spinner.getSelectedItem().toString();
+            int digit = Integer.parseInt(timeDigit);
+
+            if (spinnerValue.equalsIgnoreCase(SPINNER_MINUTES) && digit >= 60) {
+                isValidated = false;
+                Toasty.error(this, "Enter minutes between 1 to 59").show();
+            } else if (spinnerValue.equalsIgnoreCase(SPINNER_HOURS) && digit >= 24) {
+                isValidated = false;
+                Toasty.error(this, "Enter minutes between 1 to 23").show();
+            }
         }
 
         return isValidated;
